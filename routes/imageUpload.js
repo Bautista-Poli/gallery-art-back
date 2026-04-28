@@ -10,6 +10,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+
 export function registerUploadRoutes(app) {
   app.get('/api/uploads/', (_req, res) => res.json({ status: 'ok' }));
 
@@ -18,7 +19,7 @@ export function registerUploadRoutes(app) {
     try {
       const result = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          { folder: 'blessed/products', resource_type: 'image' },
+          { folder: 'art-gallery/products', resource_type: 'image' },
           (err, result) => err ? reject(err) : resolve(result)
         );
         stream.end(req.file.buffer);
@@ -35,7 +36,7 @@ export function registerUploadRoutes(app) {
     try {
       const result = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          { folder: 'blessed/drops', resource_type: 'image' },
+          { folder: 'art-gallery/drops', resource_type: 'image' },
           (err, result) => err ? reject(err) : resolve(result)
         );
         stream.end(req.file.buffer);

@@ -1,5 +1,5 @@
 // routes/stock.js
-import { pool } from './products.js';
+import { getPool } from '../db.js';
 
 export function registerStockRoutes(app) {
 
@@ -103,7 +103,7 @@ export function registerStockRoutes(app) {
       }
     }
 
-    const client = await pool.connect();
+    const client = await getPool().connect();
     try {
       await client.query('BEGIN');
       await client.query('DELETE FROM product_stock WHERE product_id = $1', [productId]);
@@ -131,7 +131,7 @@ export function registerStockRoutes(app) {
 // ── Helpers ────────────────────────────────────────────────────
 
 async function getFullProduct(productId) {
-  const { rows } = await pool.query(`
+  const { rows } = await getPool().query(`
     SELECT
       p.id, p.name, p.cat, p.drop, p.price, p.description, p.images,
       p.original_price AS "originalPrice",
@@ -156,7 +156,7 @@ async function getFullProduct(productId) {
 }
 
 export async function decrementStock(productId, size, quantity = 1, color = null) {
-  await pool.query(`
+  await getPool().query(`
     UPDATE product_stock
     SET stock = GREATEST(0, stock - $1)
     WHERE product_id = $2

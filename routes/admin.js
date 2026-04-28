@@ -1,5 +1,5 @@
 // routes/admin.js
-import { pool } from './products.js';
+import { getPool } from '../db.js';
 
 export function registerAdminRoutes(app) {
 
@@ -16,7 +16,7 @@ export function registerAdminRoutes(app) {
     }
 
     try {
-      const { rows } = await pool.query(`
+      const { rows } = await getPool().query(`
         INSERT INTO products (id, name, cat, drop, price, original_price, is_new, is_sale, images, description)
         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
         RETURNING
@@ -37,7 +37,7 @@ export function registerAdminRoutes(app) {
   // ── DELETE /api/products/:id ── Eliminar producto ────────────
   app.delete('/api/products/:id', async (req, res) => {
     try {
-      const { rowCount } = await pool.query(
+      const { rowCount } = await getPool().query(
         'DELETE FROM products WHERE id = $1', [req.params.id]
       );
       if (!rowCount) return res.status(404).json({ error: 'Producto no encontrado.' });
@@ -55,7 +55,7 @@ export function registerAdminRoutes(app) {
     if (!url) return res.status(400).json({ error: 'Se requiere { url }.' });
 
     try {
-      const { rows } = await pool.query(`
+      const { rows } = await getPool().query(`
         UPDATE products
         SET images = array_append(images, $1)
         WHERE id = $2
@@ -103,7 +103,7 @@ export function registerAdminRoutes(app) {
         params = [index, index + 2, req.params.id];
       }
 
-      const { rows } = await pool.query(query, params);
+      const { rows } = await getPool().query(query, params);
       if (!rows.length) return res.status(404).json({ error: 'Producto no encontrado.' });
       res.json({ images: rows[0].images });
     } catch (err) {
@@ -119,7 +119,7 @@ export function registerAdminRoutes(app) {
     if (!Array.isArray(images)) return res.status(400).json({ error: 'Se requiere { images: [] }.' });
 
     try {
-      const { rows } = await pool.query(`
+      const { rows } = await getPool().query(`
         UPDATE products SET images = $1 WHERE id = $2 RETURNING images
       `, [images, req.params.id]);
 

@@ -1,15 +1,11 @@
-import express from 'express';
-import cors from 'cors';
 import dotenv from 'dotenv';
 dotenv.config();
-import { registerProductRoutes } from './routes/products.js';
-import { registerDropRoutes }    from './routes/drops.js';
-import { registerAdminRoutes }   from './routes/admin.js';
-import { registerUploadRoutes }  from './routes/imageUpload.js';
-import { registerStockRoutes }   from './routes/stock.js';
-import { registerCartRoutes }    from './routes/cart.js'; // ← La nueva importación
 
+const { registerProductRoutes } = await import('./routes/products.js');
+const { registerUploadRoutes }  = await import('./routes/imageUpload.js');
 
+import express from 'express';
+import cors from 'cors';
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -27,13 +23,8 @@ app.use(cors({
   }
 }));
 
-// ── Registro de Rutas ────────────────────────────────────────
 registerProductRoutes(app);
-registerDropRoutes(app);
-registerAdminRoutes(app);
 registerUploadRoutes(app);
-registerStockRoutes(app);
-registerCartRoutes(app); // ← Inyectamos las rutas de checkout/webhook
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 app.get('/', (_req, res) => res.json({ status: 'ok' }));
