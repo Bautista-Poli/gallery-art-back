@@ -3,6 +3,8 @@ dotenv.config();
 
 const { registerProductRoutes } = await import('./routes/products.js');
 const { registerUploadRoutes }  = await import('./routes/imageUpload.js');
+const { registerExposicionRoutes } = await import('./routes/exposiciones.js');
+const { registerArtistaImagenesRoutes } = await import('./routes/artista-imagenes.js');
 
 import express from 'express';
 import cors from 'cors';
@@ -25,6 +27,8 @@ app.use(cors({
 
 registerProductRoutes(app);
 registerUploadRoutes(app);
+registerExposicionRoutes(app);
+registerArtistaImagenesRoutes(app);
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 app.get('/', (_req, res) => res.json({ status: 'ok' }));
