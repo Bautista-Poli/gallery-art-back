@@ -2,6 +2,7 @@
 import { v2 as cloudinary } from 'cloudinary';
 import multer from 'multer';
 import { getPool } from '../db.js';
+import { requireAuth } from '../auth/middleware.js';
 
 const storage = multer.memoryStorage();
 const upload  = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
@@ -62,7 +63,7 @@ export function registerExposicionRoutes(app) {
   });
 
   // ── POST /api/exposiciones ─────────────────────────────────
-  app.post('/api/exposiciones', upload.single('imagen'), async (req, res) => {
+  app.post('/api/exposiciones', requireAuth, upload.single('imagen'), async (req, res) => {
     const {
       titulo, tipo, venue, anio,
       descripcion = '', orden = 0,
@@ -103,7 +104,7 @@ export function registerExposicionRoutes(app) {
   });
 
   // ── PUT /api/exposiciones/:id ──────────────────────────────
-  app.put('/api/exposiciones/:id', upload.single('imagen'), async (req, res) => {
+  app.put('/api/exposiciones/:id', requireAuth, upload.single('imagen'), async (req, res) => {
     const { id } = req.params;
     const { titulo, tipo, venue, anio, descripcion, orden, fecha, linkEntradas } = req.body;
 
@@ -160,7 +161,7 @@ export function registerExposicionRoutes(app) {
   });
 
   // ── DELETE /api/exposiciones/:id ───────────────────────────
-  app.delete('/api/exposiciones/:id', async (req, res) => {
+  app.delete('/api/exposiciones/:id', requireAuth, async (req, res) => {
     try {
       const { rows } = await getPool().query(
         'SELECT imagen_public_id FROM exposiciones WHERE id = $1', [req.params.id]

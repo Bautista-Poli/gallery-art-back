@@ -1,5 +1,6 @@
 // routes/products.js
 import { getPool } from '../db.js';
+import { requireAuth } from '../auth/middleware.js';
 
 export function registerProductRoutes(app) {
 
@@ -79,7 +80,7 @@ export function registerProductRoutes(app) {
   });
 
   // ── POST /api/products ───────────────────────────────────────
-  app.post('/api/products', async (req, res) => {
+  app.post('/api/products', requireAuth, async (req, res) => {
     const {
       id, name, cat,
       price, description, images,
@@ -132,7 +133,7 @@ export function registerProductRoutes(app) {
   });
 
   // ── PUT /api/products/:id ────────────────────────────────────
-  app.put('/api/products/:id', async (req, res) => {
+  app.put('/api/products/:id', requireAuth, async (req, res) => {
     const { id } = req.params;
     const {
       name, cat, price, description, images,
@@ -181,7 +182,7 @@ export function registerProductRoutes(app) {
   });
 
   // ── DELETE /api/products/:id ─────────────────────────────────
-  app.delete('/api/products/:id', async (req, res) => {
+  app.delete('/api/products/:id', requireAuth, async (req, res) => {
     try {
       const { rowCount } = await getPool().query(
         'DELETE FROM products WHERE id = $1',

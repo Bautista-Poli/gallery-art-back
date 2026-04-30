@@ -2,6 +2,7 @@
 import { v2 as cloudinary } from 'cloudinary';
 import multer from 'multer';
 import { getPool } from '../db.js';
+import { requireAuth } from '../auth/middleware.js';
 
 const storage = multer.memoryStorage();
 const upload  = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
@@ -46,7 +47,7 @@ export function registerArtistaImagenesRoutes(app) {
 
   // ── PUT /api/artista-imagenes/:slot ────────────────────────
   // Reemplaza la imagen de un slot existente
-  app.put('/api/artista-imagenes/:slot', upload.single('imagen'), async (req, res) => {
+  app.put('/api/artista-imagenes/:slot', requireAuth, upload.single('imagen'), async (req, res) => {
     const { slot } = req.params;
 
     if (!req.file) {
@@ -85,7 +86,7 @@ export function registerArtistaImagenesRoutes(app) {
 
   // ── POST /api/artista-imagenes ─────────────────────────────
   // Agrega una imagen nueva a la galería (crea un slot gallery_N nuevo)
-  app.post('/api/artista-imagenes', upload.single('imagen'), async (req, res) => {
+  app.post('/api/artista-imagenes', requireAuth, upload.single('imagen'), async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ error: 'Se requiere una imagen.' });
     }
@@ -126,7 +127,7 @@ export function registerArtistaImagenesRoutes(app) {
 
   // ── DELETE /api/artista-imagenes/:slot ─────────────────────
   // Solo permite borrar slots de galería, no hero ni fullbleed
-  app.delete('/api/artista-imagenes/:slot', async (req, res) => {
+  app.delete('/api/artista-imagenes/:slot', requireAuth, async (req, res) => {
     const { slot } = req.params;
 
     if (slot === 'hero' || slot === 'fullbleed') {

@@ -1,10 +1,11 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-const { registerProductRoutes } = await import('./routes/products.js');
-const { registerUploadRoutes }  = await import('./routes/imageUpload.js');
-const { registerExposicionRoutes } = await import('./routes/exposiciones.js');
+const { registerProductRoutes }       = await import('./routes/products.js');
+const { registerUploadRoutes }        = await import('./routes/imageUpload.js');
+const { registerExposicionRoutes }    = await import('./routes/exposiciones.js');
 const { registerArtistaImagenesRoutes } = await import('./routes/artista-imagenes.js');
+const { registerAuthRoutes }          = await import('./auth/routes.js');
 
 import express from 'express';
 import cors from 'cors';
@@ -26,6 +27,7 @@ app.use(cors({
   }
 }));
 
+registerAuthRoutes(app);
 registerProductRoutes(app);
 registerUploadRoutes(app);
 registerExposicionRoutes(app);
