@@ -5,7 +5,13 @@ import { getPool } from '../db.js';
 import { requireAuth } from '../auth/middleware.js';
 
 const storage = multer.memoryStorage();
-const upload  = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
+const imageFilter = (_req, file, cb) => {
+  const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+  allowed.includes(file.mimetype)
+    ? cb(null, true)
+    : cb(new Error('Solo se permiten imágenes JPEG, PNG, WEBP o GIF'));
+};
+const upload  = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 }, fileFilter: imageFilter });
 
 async function uploadToCloudinary(buffer, slot) {
   return new Promise((resolve, reject) => {

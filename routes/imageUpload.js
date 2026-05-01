@@ -2,7 +2,13 @@ import { v2 as cloudinary } from 'cloudinary';
 import multer from 'multer';
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
+const imageFilter = (_req, file, cb) => {
+  const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+  allowed.includes(file.mimetype)
+    ? cb(null, true)
+    : cb(new Error('Solo se permiten imágenes JPEG, PNG, WEBP o GIF'));
+};
+const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 }, fileFilter: imageFilter });
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -16,6 +22,7 @@ export function registerUploadRoutes(app) {
 
   // POST /api/uploads/product
   app.post('/api/uploads/product', upload.single('file'), async (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'Se requiere un archivo.' });
     try {
       const result = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
@@ -33,6 +40,7 @@ export function registerUploadRoutes(app) {
 
   // POST /api/uploads/drop
   app.post('/api/uploads/drop', upload.single('file'), async (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'Se requiere un archivo.' });
     try {
       const result = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(

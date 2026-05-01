@@ -10,9 +10,26 @@ const { registerClientsRoutes }       = await import('./routes/clients.js');
 
 import express from 'express';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiados intentos. Intentá de nuevo en 15 minutos.' },
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiadas solicitudes. Intentá de nuevo en un momento.' },
+});
 
 app.use(express.json());
 app.use(cors({
@@ -27,6 +44,9 @@ app.use(cors({
     else callback(new Error(`CORS bloqueado para: ${origin}`));
   }
 }));
+
+app.use('/api/auth/login', loginLimiter);
+app.use('/api/', apiLimiter);
 
 registerAuthRoutes(app);
 registerProductRoutes(app);
