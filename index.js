@@ -7,6 +7,7 @@ const { registerExposicionRoutes }    = await import('./routes/exposiciones.js')
 const { registerArtistaImagenesRoutes } = await import('./routes/artista-imagenes.js');
 const { registerAuthRoutes }          = await import('./auth/routes.js');
 const { registerClientsRoutes }       = await import('./routes/clients.js');
+const { registerCarouselRoutes }      = await import('./routes/carousel.js');
 
 import express from 'express';
 import cors from 'cors';
@@ -54,6 +55,7 @@ registerUploadRoutes(app);
 registerExposicionRoutes(app);
 registerArtistaImagenesRoutes(app);
 registerClientsRoutes(app);
+registerCarouselRoutes(app);
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 app.get('/', (_req, res) => res.json({ status: 'ok' }));
