@@ -1,6 +1,10 @@
 // routes/products.js
 import { getPool } from '../db.js';
 import { requireAuth } from '../auth/middleware.js';
+import { getBlueRate } from '../services/exchange-rate.js';
+
+const toARS = (usd, rate) => Math.ceil((usd * rate) / 1000) * 1000;
+const toUSD = (ars, rate) => Math.round(ars / rate);
 
 export function registerProductRoutes(app) {
 
@@ -39,7 +43,12 @@ export function registerProductRoutes(app) {
         ORDER BY p.created_at DESC
       `, values);
 
-      res.json(rows);
+      const rate = await getBlueRate();
+      res.json(rows.map(r => ({
+        ...r,
+        price:         toARS(r.price,         rate),
+        originalPrice: toARS(r.originalPrice, rate),
+      })));
     } catch (err) {
       console.error('GET /api/products error:', err);
       res.status(500).json({ error: 'No se pudieron obtener las obras.' });
@@ -72,7 +81,13 @@ export function registerProductRoutes(app) {
       `, [req.params.id]);
 
       if (!rows.length) return res.status(404).json({ error: 'Obra no encontrada.' });
-      res.json(rows[0]);
+      const rate = await getBlueRate();
+      const r = rows[0];
+      res.json({
+        ...r,
+        price:         toARS(r.price,         rate),
+        originalPrice: toARS(r.originalPrice, rate),
+      });
     } catch (err) {
       console.error('GET /api/products/:id error:', err);
       res.status(500).json({ error: 'Error al obtener la obra.' });
@@ -93,6 +108,7 @@ export function registerProductRoutes(app) {
     }
 
     try {
+      const rate = await getBlueRate();
       const { rows } = await getPool().query(`
         INSERT INTO products (
           id, name, cat,
@@ -112,7 +128,7 @@ export function registerProductRoutes(app) {
         id,
         name,
         cat || 'Otro',
-        Number(price ?? 0),
+        toUSD(Number(price ?? 0), rate),
         description || null,
         images ?? [],
         year || null,
@@ -122,7 +138,7 @@ export function registerProductRoutes(app) {
         !!featured,
       ]);
 
-      res.status(201).json(rows[0]);
+      res.status(201).json({ ...rows[0], price: toARS(rows[0].price, rate) });
     } catch (err) {
       if (err.code === '23505') {
         return res.status(409).json({ error: `Ya existe una obra con id "${id}".` });
@@ -141,6 +157,7 @@ export function registerProductRoutes(app) {
     } = req.body;
 
     try {
+      const rate = await getBlueRate();
       const { rows } = await getPool().query(`
         UPDATE products SET
           name        = COALESCE($1,  name),
@@ -161,7 +178,7 @@ export function registerProductRoutes(app) {
       `, [
         name        ?? null,
         cat         ?? null,
-        price != null ? Number(price) : null,
+        price != null ? toUSD(Number(price), rate) : null,
         description ?? null,
         images      ?? null,
         year        ?? null,
@@ -174,7 +191,7 @@ export function registerProductRoutes(app) {
       ]);
 
       if (!rows.length) return res.status(404).json({ error: 'Obra no encontrada.' });
-      res.json(rows[0]);
+      res.json({ ...rows[0], price: toARS(rows[0].price, rate) });
     } catch (err) {
       console.error('PUT /api/products/:id error:', err);
       res.status(500).json({ error: 'Error al actualizar la obra.' });
