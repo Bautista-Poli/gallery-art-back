@@ -1,4 +1,4 @@
-const TTL_MS = 10 * 60 * 1000;
+const TTL_MS = 15 * 24 * 60 * 60 * 1000;
 let cache = { rate: null, fetchedAt: 0 };
 
 export async function getBlueRate() {
