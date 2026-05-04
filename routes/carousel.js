@@ -5,10 +5,19 @@ import { requireAuth } from '../auth/middleware.js';
 
 const storage = multer.memoryStorage();
 const mediaFilter = (_req, file, cb) => {
-  const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/webm', 'video/ogg'];
+  const allowed = [
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'image/avif',
+    'image/gif',
+    'video/mp4',
+    'video/webm',
+    'video/ogg'
+  ];
   allowed.includes(file.mimetype)
     ? cb(null, true)
-    : cb(new Error('Solo se permiten imágenes (JPEG, PNG, WEBP, GIF) o videos (MP4, WEBM, OGG)'));
+    : cb(new Error('Solo se permiten imágenes (JPEG, PNG, WEBP, AVIF, GIF) o videos (MP4, WEBM, OGG)'));
 };
 const upload = multer({ storage, limits: { fileSize: 100 * 1024 * 1024 }, fileFilter: mediaFilter });
 
