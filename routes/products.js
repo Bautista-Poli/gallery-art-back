@@ -3,7 +3,7 @@ import { getPool } from '../db.js';
 import { requireAuth } from '../auth/middleware.js';
 import { getBlueRate } from '../services/exchange-rate.js';
 
-const toARS = (usd, rate) => Math.ceil((usd * rate) / 1000) * 1000;
+const toARS = (usd, rate) => Math.round((usd * rate) / 1000) * 1000;
 const toUSD = (ars, rate) => Math.round(ars / rate);
 
 export function registerProductRoutes(app) {
