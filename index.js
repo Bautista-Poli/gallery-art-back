@@ -38,6 +38,7 @@ app.use(cors({
     const allowed = [
       process.env.FRONTEND_URL,
       'https://sophievila.vercel.app',
+      'https://sophievila.com.ar',
       'http://localhost:4200',
       'http://localhost:4201',
     ].filter(Boolean);
